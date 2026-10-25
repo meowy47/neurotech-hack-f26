@@ -49,7 +49,7 @@ difference between movement noise and a scorable interval.
 ### What simulations must produce
 
 - Segment markers for baseline, imagery, drawing, and post-drawing stillness.
-- Relative upper-alpha values against the same user's eyes-open baseline.
+- 8–12 Hz alpha-power values against the same user's median eyes-open baseline.
 - Clean/noisy flags and a confidence value for each activity.
 - One expected result for automated testing: imagery, drawing, or inconclusive.
 - A deterministic replayable session for the demo.
@@ -62,6 +62,10 @@ Generated fixtures and their expected labels live in `data/simulated/`. Run
 the quieter real AF7/TP10 recordings, then
 `./.venv/bin/python scripts/score_simulated_eeg.py --verify` to confirm that
 the raw-signal artifact gate and scoring rule reach the expected result.
+
+`./.venv/bin/python scripts/build_replay_visualizer.py` packages the same
+per-window results for `visualizations/eureka-replay.html`; it never maintains
+a separate chart-only score or recommendation path.
 
 ## Experiment M — real Muse validation (crucial in the final five hours)
 
@@ -125,17 +129,16 @@ a validation control, not a proposed UX change.
 
 ## Minimal scoring and decision rule
 
-Use one consistent, exploratory score for both activities:
+Use one consistent 8–12 Hz alpha-power score for both activities:
 
-1. Compute clean relative upper-alpha windows against the eyes-open baseline.
-2. Exclude windows flagged for motion, blink, jaw, or poor contact.
-3. Score imagery from its clean activity window.
-4. Score drawing primarily from the clean still post-drawing window; record the
-   drawing-window clean-data rate separately.
-5. Recommend the activity with the stronger clean relative response **only** if
-   both activities have enough usable data and their difference exceeds a
-   predeclared demo margin.
-6. Otherwise return the inconclusive state.
+1. Band-pass filter the recording, then divide it into short overlapping windows.
+2. Reject windows with clipping, unusually high amplitude, or abrupt movement-like changes.
+3. Calculate alpha power independently for every usable channel.
+4. Compare each activity with the median eyes-open baseline.
+5. Score imagery from its quiet active window.
+6. Score drawing mainly from the quiet post-drawing interval; record the drawing-window clean-data rate separately.
+7. Combine only clean channels using their median, never a blind all-channel average.
+8. Recommend an activity only if both sides have enough clean windows and the difference exceeds a predeclared demo margin; otherwise return inconclusive.
 
 Treat all thresholds as configurable demo defaults. Do not tune them until they
 fit three people and then present them as a validated creativity classifier.
@@ -164,4 +167,4 @@ The collection is successful when:
    hardware becomes unreliable.
 
 Do not treat a three-person hackathon sample as evidence that one activity
-works universally or that upper alpha measures creativity.
+works universally or that 8–12 Hz alpha power measures creativity.

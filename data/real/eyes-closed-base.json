@@ -1,0 +1,11 @@
+{
+  "scenario": "real_eyes_closed_reference",
+  "display_name": "Real eyes-closed reference",
+  "source_type": "real",
+  "participant": "unlabeled_participant",
+  "baseline_group": "eyes_closed_reference",
+  "segments_s": {
+    "baseline": [0, 87.36]
+  },
+  "notes": "Existing real Muse eyes-closed preflight recording. It is a pipeline sanity-check reference only and must not be compared with eyes-open activities or used for a recommendation."
+}

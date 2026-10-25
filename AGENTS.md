@@ -25,7 +25,7 @@ Open Eureka
 ## Product boundaries
 
 - Do **not** say Eureka measures, diagnoses, or improves creativity.
-- The signal is an exploratory, alpha-based EEG marker associated with divergent thinking—not a creativity score, a universal “creative brainwave,” or a medical measurement.
+- The only exploratory signal in this MVP is 8–12 Hz alpha power associated with divergent thinking—not a creativity score, a universal “creative brainwave,” or a medical measurement.
 - A result is “stronger creative-reset response today” or “early evidence for this session,” not proof of a durable personal preference.
 - Do not claim the app induces hypnagogia, causes insight, or guarantees an aha moment. Hypnagogia may be used only as a relatable opening story.
 - Treat the app as a wellness/productivity prototype, never as medical, clinical, diagnostic, or therapeutic software.
@@ -53,8 +53,9 @@ Prioritize a practical next action over raw neuroscience visualizations.
 ## Signal handling
 
 - Compare both activity measurements against the same user's 30-second calm baseline using the same processing conventions.
-- Treat alpha as the primary exploratory signal. Theta is optional secondary context and never proof of creativity.
-- Use only clean, still epochs for scoring. Flag blink, jaw, and high-frequency artifact.
+- Use only 8–12 Hz alpha power; do not add secondary-band claims.
+- Filter into short overlapping windows. Reject clipping, unusually high amplitude, and abrupt movement-like changes before scoring.
+- Compute alpha power per usable channel and use the median of clean channels; do not blindly average all four channels.
 - Free drawing can create movement and eye-motion artifact. When feasible, score a brief still, quiet period immediately after drawing; otherwise lower confidence or return an inconclusive result.
 - Do not turn low-quality data into a confident recommendation.
 - Keep the EEG/signal service and UI independently runnable. A fake state generator must support end-to-end UI work without live hardware.
@@ -71,7 +72,7 @@ Avoid:
 
 - “We detected creativity.”
 - “Drawing made you more creative.”
-- “Your alpha/theta waves prove you are in open mode.”
+- “Your alpha waves prove you are in open mode.”
 - “Eureka induced hypnagogia.”
 
 ## Build priorities

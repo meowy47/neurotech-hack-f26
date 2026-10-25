@@ -118,8 +118,8 @@ The app should measure an individualized, exploratory EEG response associated wi
 ### Recommended framing
 
 - Compare each activity with the user's calm baseline.
-- Treat alpha as the primary exploratory signal. Frontal/centro-parietal alpha has been associated with divergent ideation in some research contexts.
-- Treat theta as secondary context, not a necessary component or proof of a creative response.
+- Use 8–12 Hz alpha power as the sole exploratory signal. Alpha has been associated with divergent ideation in some research contexts.
+- Do not add secondary-band claims to the MVP.
 - Keep comparisons within the same session whenever possible.
 - Use wording such as “stronger creative-reset response today” or “stronger association with your divergent-thinking EEG profile.”
 
@@ -127,7 +127,7 @@ The app should measure an individualized, exploratory EEG response associated wi
 
 - “We detected creativity.”
 - “This activity made you more creative.”
-- “Your clean alpha/theta waves prove you are in open mode.”
+- “Your clean alpha waves prove you are in open mode.”
 - “Eureka induces hypnagogia.”
 - “This guarantees an aha moment.”
 

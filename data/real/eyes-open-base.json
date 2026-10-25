@@ -1,0 +1,11 @@
+{
+  "scenario": "real_eyes_open_reference",
+  "display_name": "Real eyes-open reference",
+  "source_type": "real",
+  "participant": "unlabeled_participant",
+  "baseline_group": "eyes_open_reference",
+  "segments_s": {
+    "baseline": [0, 87.36]
+  },
+  "notes": "Existing real Muse eyes-open baseline recording. It is a reference trace only and must not be ranked against simulated activity sessions."
+}
