@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+project_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: $0 --name Muse-XXXX"
+  echo "       $0 --address AA:BB:CC:DD:EE:FF"
+  exit 1
+fi
+
+exec "$project_dir/.venv/bin/muselsl" stream --ppg --acc --gyro "$@"

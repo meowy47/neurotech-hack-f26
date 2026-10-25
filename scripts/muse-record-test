@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+project_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+mkdir -p "$project_dir/recordings"
+timestamp="$(date +%Y%m%d-%H%M%S)"
+
+exec "$project_dir/.venv/bin/muselsl" record \
+  --duration "${1:-20}" \
+  --filename "$project_dir/recordings/muse-eeg-$timestamp.csv"
