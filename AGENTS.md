@@ -85,4 +85,4 @@ Do not add a backend, authentication, cloud sync, persistent user profiling, foc
 
 ## Reference document
 
-The complete product specification is [`EUREKA_MVP.md`](EUREKA_MVP.md). Keep interface copy, implementation decisions, and demos aligned with it.
+The complete product specification is [`EUREKA_MVP.md`](EUREKA_MVP.md). The required simulation-first and final-five-hour Muse protocol is [`DATA_COLLECTION_PLAN.md`](DATA_COLLECTION_PLAN.md). Keep interface copy, implementation decisions, data collection, and demos aligned with them.

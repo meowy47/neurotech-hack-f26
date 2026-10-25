@@ -1,0 +1,52 @@
+{
+  "scenario": "imagery_stronger",
+  "expected_result": "imagery",
+  "expected_confidence": "high",
+  "seed": 1729,
+  "sample_rate_hz": 250,
+  "alpha_range_hz": [
+    8.0,
+    12.0
+  ],
+  "columns": [
+    "timestamps",
+    "TP9",
+    "AF7",
+    "AF8",
+    "TP10",
+    "Right AUX"
+  ],
+  "segments_s": {
+    "baseline": [
+      0,
+      30
+    ],
+    "imagery": [
+      30,
+      120
+    ],
+    "drawing": [
+      120,
+      210
+    ],
+    "post_drawing_still": [
+      210,
+      240
+    ]
+  },
+  "alpha_power_targets": {
+    "baseline": 1.0,
+    "imagery": 1.32,
+    "drawing": 1.08,
+    "post_drawing_still": 1.08
+  },
+  "artifact_events": [],
+  "notes": "Effects change the raw 8\u201312 Hz alpha amplitude by sqrt(target power). Expected labels are test expectations, not embedded scores.",
+  "quiet_noise_scale_uv": 6.142845,
+  "noise_reference_files": [
+    "eyes-open-base.csv",
+    "probe1.csv",
+    "probe2.csv",
+    "work1.csv"
+  ]
+}

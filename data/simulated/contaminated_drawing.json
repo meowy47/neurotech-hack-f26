@@ -1,0 +1,88 @@
+{
+  "scenario": "contaminated_drawing",
+  "expected_result": "inconclusive",
+  "expected_confidence": "low",
+  "seed": 5772,
+  "sample_rate_hz": 250,
+  "alpha_range_hz": [
+    8.0,
+    12.0
+  ],
+  "columns": [
+    "timestamps",
+    "TP9",
+    "AF7",
+    "AF8",
+    "TP10",
+    "Right AUX"
+  ],
+  "segments_s": {
+    "baseline": [
+      0,
+      30
+    ],
+    "imagery": [
+      30,
+      120
+    ],
+    "drawing": [
+      120,
+      210
+    ],
+    "post_drawing_still": [
+      210,
+      240
+    ]
+  },
+  "alpha_power_targets": {
+    "baseline": 1.0,
+    "imagery": 1.14,
+    "drawing": 1.32,
+    "post_drawing_still": 1.15
+  },
+  "artifact_events": [
+    {
+      "type": "broadband_movement",
+      "start_s": 133.0,
+      "duration_s": 0.9477387635999218
+    },
+    {
+      "type": "broadband_movement",
+      "start_s": 151.5,
+      "duration_s": 0.9053591252008268
+    },
+    {
+      "type": "broadband_movement",
+      "start_s": 177.0,
+      "duration_s": 0.8410459943553905
+    },
+    {
+      "type": "broadband_movement",
+      "start_s": 199.0,
+      "duration_s": 0.642318297571537
+    },
+    {
+      "type": "frontal_blink",
+      "start_s": 141.0,
+      "duration_s": 0.7008420915948516
+    },
+    {
+      "type": "frontal_blink",
+      "start_s": 164.0,
+      "duration_s": 1.0208571730415785
+    },
+    {
+      "type": "frontal_blink",
+      "start_s": 190.0,
+      "duration_s": 0.8893745174663652
+    }
+  ],
+  "notes": "Effects change the raw 8\u201312 Hz alpha amplitude by sqrt(target power). Expected labels are test expectations, not embedded scores.",
+  "quiet_noise_scale_uv": 6.142845,
+  "noise_reference_files": [
+    "eyes-open-base.csv",
+    "probe1.csv",
+    "probe2.csv",
+    "work1.csv"
+  ]
+}

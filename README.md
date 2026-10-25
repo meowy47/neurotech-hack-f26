@@ -16,4 +16,4 @@ Open Eureka
 
 The MVP adapts at the end of the session: it compares the two activities and recommends the stronger creative reset for that user today. It does not claim to measure creativity directly, induce hypnagogia, or guarantee breakthroughs.
 
-See [the MVP specification](EUREKA_MVP.md) for product scope, UX copy, measurement guardrails, recommendation logic, and demo plan. Repository working guidance is in [AGENTS.md](AGENTS.md).
+See [the MVP specification](EUREKA_MVP.md) for product scope, UX copy, measurement guardrails, recommendation logic, and demo plan. The simulation-first and real-Muse validation protocol is in [DATA_COLLECTION_PLAN.md](DATA_COLLECTION_PLAN.md). Repository working guidance is in [AGENTS.md](AGENTS.md).
