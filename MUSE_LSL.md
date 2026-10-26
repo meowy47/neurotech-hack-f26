@@ -40,6 +40,22 @@ In a second terminal, open the viewer:
 ./scripts/muse-view
 ```
 
+Or launch Eureka's live monitor, which discovers the LSL stream by its `EEG`
+type and serves a browser dashboard:
+
+```bash
+./scripts/muse-live
+```
+
+Open `http://127.0.0.1:8765`. It reads chunks continuously at the stream's
+reported sample rate and sends browser updates every 125 ms with elapsed time,
+alpha index, clean channels, artifact state, and alpha/theta/beta bandpower.
+Pass `--update-ms 125` through `250` to adjust the update interval.
+It always analyzes only the first four Muse EEG electrodes; a fifth Muse value
+is treated as `Right AUX` and excluded even when the LSL stream omits labels.
+The same service hosts the connected phone-sized Eureka app at
+`http://127.0.0.1:8765/app/`.
+
 Moving EEG traces confirm that data is arriving. Blink once or gently clench
 your jaw to confirm the display is live; do not use those noisy periods for
 Eureka scoring.

@@ -1,4 +1,5 @@
 # MuseLSL calls bitstring.Bits(bytes=...), an API removed in Bitstring 5.
 # Keep the compatible major version until MuseLSL declares an upper bound.
+numpy>=1.24
 bitstring<5
 git+https://github.com/alexandrebarachant/muse-lsl.git

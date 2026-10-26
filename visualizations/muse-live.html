@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eureka Muse Live</title>
+  <style>
+    :root { color-scheme:dark; --bg:#10141a; --panel:#171e27; --line:#344254; --text:#f5f7fb; --muted:#9eabba; --theta:#bba1ff; --alpha:#8fe0c0; --beta:#7db8ff; --good:#8fe0c0; --warn:#f2ba71; --bad:#ed7b7b; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:1120px; margin:0 auto; padding:28px 20px 42px; }
+    h1,h2,p { margin:0; } h1 { font-size:28px; letter-spacing:-.02em; } h2 { font-size:16px; font-weight:600; }
+    .subhead,.meta { color:var(--muted); } .subhead { margin-top:4px; } .meta { font-size:12px; margin-top:10px; }
+    .topline { display:flex; justify-content:space-between; gap:14px; align-items:center; margin-top:20px; }
+    .chip { border:1px solid var(--line); padding:6px 10px; border-radius:999px; color:var(--muted); font-size:12px; white-space:nowrap; }
+    .chip.live { color:var(--good); border-color:color-mix(in srgb,var(--good) 55%,var(--line)); }.chip.wait { color:var(--warn); }.chip.error { color:var(--bad); }
+    .controls { display:flex; gap:12px; flex-wrap:wrap; align-items:end; margin:18px 0; }
+    label { display:grid; gap:5px; color:var(--muted); font-size:12px; }
+    select { min-width:175px; background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:7px; font:inherit; padding:8px 10px; }
+    .bands { display:flex; flex-wrap:wrap; gap:8px; }
+    .bands button { background:var(--panel); color:var(--muted); border:1px solid var(--line); padding:8px 11px; border-radius:7px; cursor:pointer; font:inherit; }
+    .bands button.active { color:var(--text); border-color:var(--band); background:color-mix(in srgb,var(--band) 14%,var(--panel)); }
+    .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; }
+    .grid { display:grid; grid-template-columns:1.35fr .65fr; gap:18px; align-items:start; }
+    canvas { display:block; width:100%; height:330px; margin-top:12px; border-radius:8px; background:#0d1218; }
+    .metrics { display:grid; gap:14px; }
+    .metric { border-bottom:1px solid var(--line); padding-bottom:13px; }.metric:last-child { border:0;padding:0; }
+    .metric-label { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.06em; }.metric-value { font-size:34px; line-height:1.1; margin-top:4px; font-variant-numeric:tabular-nums; }.metric-value.good { color:var(--good); }.metric-value.warn { color:var(--warn); }.metric-value.bad { color:var(--bad); }
+    .clean-list { color:var(--text); margin-top:4px; min-height:24px; }.instructions { margin-top:18px; line-height:1.55; }
+    code { background:#0d1218; padding:2px 5px; border-radius:4px; }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr; }.topline { align-items:flex-start; flex-direction:column; }.metric-value { font-size:29px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Muse EEG live monitor</h1>
+    <p class="subhead">LSL EEG stream · updates every 125 ms · alpha index uses a rolling 30-second session baseline</p>
+    <div class="topline"><p class="meta" id="stream-info">Waiting for a stream with LSL type <code>EEG</code>.</p><span class="chip wait" id="connection">Looking for stream</span></div>
+
+    <div class="controls">
+      <label>EEG channel <select id="channel" disabled><option>Waiting for stream…</option></select></label>
+      <label>Bandpower trace
+        <span class="bands" role="group" aria-label="Visible bandpower">
+          <button class="active" type="button" data-band="alpha" style="--band:#8fe0c0">Alpha · 8–12 Hz</button>
+          <button type="button" data-band="theta" style="--band:#bba1ff">Theta · 4–8 Hz</button>
+          <button type="button" data-band="beta" style="--band:#7db8ff">Beta · 13–30 Hz</button>
+        </span>
+      </label>
+    </div>
+
+    <div class="grid">
+      <section class="panel"><h2 id="chart-title">Alpha bandpower</h2><canvas id="chart" aria-label="Live selected-channel bandpower chart"></canvas><p class="meta">The chart retains the most recent 90 seconds. Switch bands to show one filtered bandpower trace at a time.</p></section>
+      <aside class="panel metrics">
+        <div class="metric"><div class="metric-label">Elapsed</div><div class="metric-value" id="elapsed">0.0 s</div></div>
+        <div class="metric"><div class="metric-label">Alpha index</div><div class="metric-value good" id="alpha-index">—</div><div class="meta">100 = current alpha power matches the session’s accumulating baseline.</div></div>
+        <div class="metric"><div class="metric-label">Clean channels</div><div class="clean-list" id="clean-channels">—</div></div>
+        <div class="metric"><div class="metric-label">Artifact gate</div><div class="metric-value" id="artifact">Waiting</div><div class="meta" id="artifact-detail">Checks peak-to-peak amplitude and rapid changes in the latest second.</div></div>
+      </aside>
+    </div>
+    <section class="panel instructions"><h2>Start</h2><p class="meta">Start MuseLSL in one terminal, then run <code>./scripts/muse-live</code>. This page is served at <code>http://127.0.0.1:8765</code>. The monitor uses the EEG stream’s reported nominal sample rate; it does not assume 250 Hz. <a href="/app/">Open the connected Eureka app</a>.</p></section>
+  </main>
+  <script>
+    (() => {
+      const colors={theta:'#bba1ff',alpha:'#8fe0c0',beta:'#7db8ff'};
+      const channel=document.getElementById('channel'), connection=document.getElementById('connection'), streamInfo=document.getElementById('stream-info');
+      const elapsed=document.getElementById('elapsed'), alphaIndex=document.getElementById('alpha-index'), cleanChannels=document.getElementById('clean-channels'), artifact=document.getElementById('artifact'), artifactDetail=document.getElementById('artifact-detail'), chart=document.getElementById('chart'), chartTitle=document.getElementById('chart-title');
+      const history=[]; let selectedBand='alpha', selectedChannel=''; let knownChannels=[];
+      const eventUrl=location.protocol.startsWith('http') ? `${location.protocol}//${location.host}/events` : 'http://127.0.0.1:8765/events';
+      function formatSeconds(value) { return value < 60 ? `${value.toFixed(1)} s` : `${Math.floor(value/60)}m ${(value%60).toFixed(0)}s`; }
+      function setConnection(text,kind) { connection.textContent=text;connection.className=`chip ${kind}`; }
+      function canvasContext() { const dpr=devicePixelRatio||1,rect=chart.getBoundingClientRect();chart.width=Math.round(rect.width*dpr);chart.height=Math.round(rect.height*dpr);const ctx=chart.getContext('2d');ctx.scale(dpr,dpr);return [ctx,rect.width,rect.height]; }
+      function text(ctx,value,x,y,align='left') {ctx.fillStyle='#9eabba';ctx.font='12px ui-sans-serif,system-ui';ctx.textAlign=align;ctx.fillText(value,x,y);}
+      function drawChart() {
+        const [ctx,w,h]=canvasContext(),m={l:58,r:18,t:18,b:30};ctx.clearRect(0,0,w,h);
+        const rows=history.filter(row=>row.channel===selectedChannel&&row.band===selectedBand),now=rows.at(-1)?.elapsed||0,start=Math.max(0,now-90),visible=rows.filter(row=>row.elapsed>=start&&row.value!=null);
+        if(!visible.length){text(ctx,'Waiting for clean bandpower frames…',w/2,h/2,'center');return;}
+        const values=visible.map(row=>row.value),low=Math.min(...values),high=Math.max(...values),span=Math.max(high-low,Math.max(Math.abs(high),1)*.15),min=low-span*.12,max=high+span*.12;
+        const x=value=>m.l+(w-m.l-m.r)*(value-start)/Math.max(now-start,1),y=value=>m.t+(h-m.t-m.b)*(max-value)/(max-min);
+        ctx.strokeStyle='#344254';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(m.l,y((min+max)/2));ctx.lineTo(w-m.r,y((min+max)/2));ctx.stroke();ctx.setLineDash([]);
+        ctx.strokeStyle=colors[selectedBand];ctx.lineWidth=2;ctx.beginPath();visible.forEach((row,index)=>index?ctx.lineTo(x(row.elapsed),y(row.value)):ctx.moveTo(x(row.elapsed),y(row.value)));ctx.stroke();
+        ctx.strokeStyle='#344254';ctx.lineWidth=1;ctx.strokeRect(m.l,m.t,w-m.l-m.r,h-m.t-m.b);text(ctx,max.toExponential(2),m.l-8,m.t+4,'right');text(ctx,min.toExponential(2),m.l-8,h-m.b+4,'right');text(ctx,formatSeconds(start),m.l,h-8,'center');text(ctx,formatSeconds(now),w-m.r,h-8,'center');
+      }
+      function updateChannels(channels) { if(JSON.stringify(channels)===JSON.stringify(knownChannels))return;knownChannels=channels;channel.innerHTML='';channels.forEach(name=>channel.add(new Option(name,name)));selectedChannel=channels.includes('AF7')?'AF7':channels[0]||'';channel.value=selectedChannel;channel.disabled=!selectedChannel; }
+      function receive(frame) {
+        if(frame.type==='status'){setConnection('Looking for stream','wait');return;}
+        updateChannels(frame.channels);setConnection(frame.ready?'Live':'Buffering','live');streamInfo.textContent=`${frame.stream_name} · ${frame.sample_rate_hz} Hz reported sample rate · ${frame.channels.length} EEG channels`;
+        elapsed.textContent=formatSeconds(frame.elapsed_seconds);alphaIndex.textContent=frame.alpha_index==null?'—':Math.round(frame.alpha_index);cleanChannels.textContent=frame.clean_channels.length?frame.clean_channels.join(', '):'None';
+        const hasArtifact=frame.artifact.detected;artifact.textContent=hasArtifact?'Artifact':'Clean';artifact.className=`metric-value ${hasArtifact?'bad':'good'}`;artifactDetail.textContent=hasArtifact?`${frame.artifact.channels.join(', ')}: ${Object.entries(frame.artifact.reasons).map(([name,reasons])=>`${name} (${reasons.join(', ')})`).join('; ')}`:'No threshold breach in the latest one-second window.';
+        if(frame.ready){for(const [band,byChannel] of Object.entries(frame.bandpower))for(const [channelName,value] of Object.entries(byChannel))history.push({elapsed:frame.elapsed_seconds,band,channel:channelName,value});while(history.length>9000)history.shift();drawChart();}
+      }
+      channel.addEventListener('change',()=>{selectedChannel=channel.value;drawChart();});
+      document.querySelectorAll('[data-band]').forEach(button=>button.addEventListener('click',()=>{selectedBand=button.dataset.band;document.querySelectorAll('[data-band]').forEach(item=>item.classList.toggle('active',item===button));chartTitle.textContent=`${button.textContent.split('·')[0].trim()} bandpower`;drawChart();}));
+      const events=new EventSource(eventUrl);events.onmessage=event=>receive(JSON.parse(event.data));events.onerror=()=>setConnection('Reconnecting','error');
+      addEventListener('resize',drawChart);
+    })();
+  </script>
+</body>
+</html>

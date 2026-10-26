@@ -20,4 +20,14 @@ See [the MVP specification](EUREKA_MVP.md) for product scope, UX copy, measureme
 
 ## Replay visualizer
 
-Build the replay data with `./.venv/bin/python scripts/build_replay_visualizer.py`, then open [the replay visualizer](visualizations/eureka-replay.html). It streams the simulated session in one-second chunks at eight UI updates per second. Its live trace, alpha-response index, comparison, overlay, and recommendation all use the shared processing in `scripts/eeg_scoring.py`.
+Build the replay data with `./.venv/bin/python scripts/build_replay_visualizer.py`, then open [the EEG visualizer](visualizations/eureka-replay.html). It displays an entire included or uploaded CSV at once, with selectable theta, alpha, and beta filtered traces.
+
+## Muse live visualizer
+
+Start a MuseLSL stream, then run `./scripts/muse-live`. The service discovers
+the LSL `EEG` stream, uses its reported sample rate, and emits 125 ms updates
+with elapsed seconds, alpha index, clean channels, artifact state, and
+per-channel theta/alpha/beta bandpower. Open the standalone monitor at
+`http://127.0.0.1:8765` or the connected Eureka app at
+`http://127.0.0.1:8765/app/`. See [the Muse LSL setup guide](MUSE_LSL.md) for
+the full sequence.

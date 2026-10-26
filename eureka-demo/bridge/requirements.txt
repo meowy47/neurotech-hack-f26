@@ -1,0 +1,4 @@
+numpy>=1.24
+websockets>=12.0
+python-osc>=1.8      # for --source osc (Mind Monitor)
+pylsl>=1.16          # for --source lsl (muselsl); install muselsl separately to stream

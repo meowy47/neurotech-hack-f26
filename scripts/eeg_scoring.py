@@ -1,4 +1,4 @@
-"""Shared 8–12 Hz alpha processing for Eureka replay, charts, and decisions."""
+"""Shared EEG processing for Eureka replay, charts, and alpha-based decisions."""
 
 from __future__ import annotations
 
@@ -12,6 +12,11 @@ from scipy import signal
 
 SAMPLE_RATE_HZ = 250
 ALPHA_RANGE_HZ = (8.0, 12.0)
+BAND_RANGES_HZ = {
+    "theta": (4.0, 8.0),
+    "alpha": ALPHA_RANGE_HZ,
+    "beta": (13.0, 30.0),
+}
 WINDOW_SECONDS = 2.0
 DEFAULT_HOP_SECONDS = 1.0
 MIN_CLEAN_CHANNELS = 3
@@ -37,14 +42,29 @@ def load_raw_eeg(csv_path: Path) -> np.ndarray:
     return samples[:, CSV_CHANNEL_INDEXES]
 
 
+def filter_band(raw_eeg: np.ndarray, band: str) -> np.ndarray:
+    """Band-pass every EEG channel in one of the replay inspection bands."""
+    try:
+        low_hz, high_hz = BAND_RANGES_HZ[band]
+    except KeyError as error:
+        raise ValueError(f"Unknown EEG band: {band}") from error
+    band_filter = signal.butter(4, (low_hz, high_hz), btype="bandpass", fs=SAMPLE_RATE_HZ, output="sos")
+    return signal.sosfiltfilt(band_filter, raw_eeg, axis=0)
+
+
 def filter_alpha(raw_eeg: np.ndarray) -> np.ndarray:
-    """Band-pass every EEG channel once; all consumers use this identical filter."""
-    alpha_filter = signal.butter(4, ALPHA_RANGE_HZ, btype="bandpass", fs=SAMPLE_RATE_HZ, output="sos")
-    return signal.sosfiltfilt(alpha_filter, raw_eeg, axis=0)
+    """Preserve the single shared 8–12 Hz filter used for all scoring decisions."""
+    return filter_band(raw_eeg, "alpha")
 
 
 def load_filtered_alpha(csv_path: Path) -> np.ndarray:
     return filter_alpha(load_raw_eeg(csv_path))
+
+
+def load_filtered_bands(csv_path: Path) -> dict[str, np.ndarray]:
+    """Load theta, alpha, and beta inspection traces from the exact same raw CSV."""
+    raw_eeg = load_raw_eeg(csv_path)
+    return {band: filter_band(raw_eeg, band) for band in BAND_RANGES_HZ}
 
 
 def _window_starts(start_s: float, end_s: float, hop_seconds: float) -> list[int]:
@@ -74,9 +94,11 @@ def _segment_windows(segments: dict[str, list[float]], hop_seconds: float) -> li
     return sorted(rows, key=lambda row: row[1])
 
 
-def analyze_session(csv_path: Path, metadata_path: Path, hop_seconds: float = DEFAULT_HOP_SECONDS) -> dict[str, Any]:
+def analyze_session(
+    csv_path: Path, metadata_path: Path | dict[str, Any], hop_seconds: float = DEFAULT_HOP_SECONDS
+) -> dict[str, Any]:
     """Return shared per-window records plus the only allowed session decision."""
-    metadata = load_metadata(metadata_path)
+    metadata = load_metadata(metadata_path) if isinstance(metadata_path, Path) else metadata_path
     segments = metadata["segments_s"]
     raw_eeg = load_raw_eeg(csv_path)
     filtered_alpha = filter_alpha(raw_eeg)

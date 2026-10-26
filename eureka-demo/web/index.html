@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Eureka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Outfit:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="phone">
+
+  <section id="work" class="screen work">
+    <div class="glow" aria-hidden="true"></div>
+    <div class="topbar">
+      <span class="brand">EUREKA</span>
+      <span id="sourceChip" class="chip"><span class="dot"></span><span id="sourceText">Connecting to Muse…</span></span>
+    </div>
+
+    <div class="stopwatch">
+      <div class="label">EUREKA SESSION</div>
+      <div id="workClock" class="clock">0:00</div>
+    </div>
+
+    <figure class="waves">
+      <canvas id="waveCanvas" aria-label="Live filtered waves from the forehead sensors" role="img"></canvas>
+      <figcaption>
+        <span class="key"><i class="sw af7"></i>AF7</span>
+        <span class="key"><i class="sw af8"></i>AF8</span>
+        <span id="signalNote" class="note">Waiting for EEG</span>
+      </figcaption>
+    </figure>
+
+    <div class="bands" id="bands">
+      <div class="band"><span>Theta</span><b id="bTheta">–</b><small>4–8 Hz</small></div>
+      <div class="band"><span>Alpha</span><b id="bAlpha">–</b><small>8–12 Hz</small></div>
+      <div class="band hi"><span>Alpha index</span><b id="bIndex">–</b><small>baseline = 100</small></div>
+      <div class="band"><span>Beta</span><b id="bBeta">–</b><small>13–30 Hz</small></div>
+    </div>
+
+    <div class="cta">
+      <p class="why">Your brain waves have drifted from your focused pattern for the last 2 minutes, a sign your focus is fading.</p>
+      <button id="takeBreak" class="btn primary" type="button">Take a creative break</button>
+    </div>
+  </section>
+
+  <section id="break" class="screen" hidden>
+    <div class="topbar">
+      <button id="backToWork" class="btn ghost small" type="button">Back to work</button>
+      <span class="breakclock">Break <span id="breakClock">0:00</span> / 15:00</span>
+    </div>
+    <h1>CREATIVE BREAK</h1>
+    <p class="sub">Compare the live alpha response with a calm personal baseline.</p>
+    <p id="baselineNote" class="baseline"></p>
+    <div id="cards" class="cards"></div>
+    <p class="fine">Activity rankings are sample data from past breaks. The live reading uses your headband.</p>
+  </section>
+
+</main>
+<script src="app.js"></script>
+</body>
+</html>
